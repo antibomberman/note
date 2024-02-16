@@ -29,6 +29,19 @@ class NoteController extends Controller
 
         return response()->json($note);
     }
+    public function show($id)
+    {
+        $note = Note::query()
+            ->when(!Auth::user()->isAdmin(), function ($query) {
+                return $query->where('user_id', Auth::id());
+            })
+            ->where('id', $id)
+            ->latest()
+            ->with('user')
+            ->firstOrFail();
+
+        return response()->json($note);
+    }
     public function update(NoteUpdateRequest $request,$id)
     {
         $note = Note::query()
